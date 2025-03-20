@@ -1,18 +1,29 @@
-name: Run Terminal Command
+name: SSH Server on GitHub Actions
 
-on:
-  push:
-    branches:
-      - main
+on:  
+  workflow_dispatch  # Manuel çalıştırma  
 
-jobs:
-  run:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+jobs:  
+  run-ssh-server:  
+    runs-on: ubuntu-latest  
+    steps:  
+      - name: SSH Server Kurulumu  
+        run: |  
+          sudo apt update  
+          sudo apt install -y openssh-server  
+          sudo systemctl start ssh  
+          sudo systemctl enable ssh  
 
-      - name: Run a terminal command
-        run: |
-          rm -rf root
-          ls -alh
+      - name: Geçici Kullanıcı ve Şifre Oluştur  
+        run: |  
+          sudo useradd -m kenan  
+          echo 'kenan:kenan' | sudo chpasswd  
+
+      - name: SSH Bağlantı Bilgilerini Yazdır  
+        run: |  
+          echo "Bağlanmak için:"  
+          echo "ssh kenan@$(curl -s ifconfig.me)"  
+
+      - name: SSH Üzerinden Komut Çalıştır  
+        run: |  
+          ssh kenan@localhost "echo 'SSH bağlantısı başarılı!'"
