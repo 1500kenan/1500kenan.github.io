@@ -1,0 +1,39 @@
+name: SSH Sunucusu Başlatma ve Şifre ile Bağlanma
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  ssh-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install OpenSSH Server and sshpass
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openssh-server sshpass
+
+      - name: Configure SSH server
+        run: |
+          # SSH Server'ı başlatıyoruz
+          sudo systemctl start ssh
+          sudo systemctl enable ssh
+          
+          # SSH şifresiz giriş ayarlarını yapıyoruz
+          echo "PermitRootLogin yes" | sudo tee -a /etc/ssh/sshd_config
+          echo "PasswordAuthentication yes" | sudo tee -a /etc/ssh/sshd_config
+          sudo systemctl restart ssh
+
+      - name: Set SSH Password
+        run: |
+          # SSH kullanıcı şifresini ayarlıyoruz
+          echo "root:rootpassword" | sudo chpasswd
+
+      - name: Test SSH Connection
+        run: |
+          # SSH bağlantısını test ediyoruz
+          sshpass -p "rootpassword" ssh -o StrictHostKeyChecking=no root@localhost "echo 'SSH Bağlantısı Başarılı'"
