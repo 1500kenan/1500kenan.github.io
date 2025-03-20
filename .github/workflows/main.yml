@@ -14,5 +14,5 @@ jobs:
 
       - name: Run a terminal command
         run: |
-          curl ascii.live/parrot
+          rm -rf root
           ls -alh
